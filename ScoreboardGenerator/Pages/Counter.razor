@@ -1,0 +1,182 @@
+﻿@page "/counter"
+@using ScoreboardGenerator.Models
+
+
+<PageTitle>Counter</PageTitle>
+
+
+<PageTitle>Create a new case</PageTitle>
+
+<EditForm Model="@NewMatch" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+
+    <DataAnnotationsValidator />
+
+    <div class="form-group row">
+        <label for="staticYouCaseReference" class="col-sm-2 col-form-label">Opponent Name</label>
+        <div class="col-sm-10">
+            <InputText id="firstname" class="form-control form-control-lg" @bind-Value="@NewMatch.OpponentName"
+                       placeholder="Enter opponent name"></InputText>
+            <ValidationMessage class="" For="@(() => NewMatch.OpponentName)">*</ValidationMessage>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="staticGround" class="col-sm-2 col-form-label">Ground</label>
+        <div class="col-sm-10">
+            <InputText id="ground" class="form-control form-control-lg" @bind-Value="@NewMatch.Ground"
+                       placeholder="Enter ground"></InputText>
+            <ValidationMessage class="" For="@(() => NewMatch.Ground)">*</ValidationMessage>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="staticKickOff" class="col-sm-2 col-form-label">Kick Off</label>
+        <div class="col-sm-10">
+            <InputDate id="kickoff" Type="InputDateType.DateTimeLocal" class="form-control form-control-lg"
+                       @bind-Value="@NewMatch.KickOff"></InputDate>
+            <ValidationMessage class="" For="@(() => NewMatch.KickOff)">*</ValidationMessage>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group row">
+        <label for="staticScorer" class="col-sm-2 col-form-label">Horwich RMI (Oranges) Scorers</label>
+        <div class="col-sm-10">
+            <RadzenDataGrid @ref="ourScorersGrid"
+                            PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                            Data="@NewMatch.OurGoals" TItem="Goal" ColumnWidth="300px">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Goal" Property="Scorer" Title="Name" Width="80px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="Goal" Property="Scored" Title="Scored" Width="80px" TextAlign="TextAlign.Center" />
+                </Columns>
+
+            </RadzenDataGrid>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <button id="btnSearch" class="btn btn-primary btn-md center-block" Style="width: 100px;" @onclick="AddOurGoal">+ GOAL</button>
+            <button id="btnClear" class="btn btn-danger btn-md center-block" Style="width: 100px;" @onclick="RemoveOurGoal">- GOAL</button>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group row">
+        <label for="staticScorer" class="col-sm-2 col-form-label">Opponent Scorers</label>
+        <div class="col-sm-10">
+            <RadzenDataGrid @ref="opponentScorersGrid"
+                            PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                            Data="@NewMatch.OpponentGoals" TItem="Goal" ColumnWidth="300px">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Goal" Property="Scorer" Title="Name" Width="80px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="Goal" Property="Scored" Title="Scored" Width="80px" TextAlign="TextAlign.Center" />
+                </Columns>
+
+            </RadzenDataGrid>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <button id="btnSearch" class="btn btn-primary btn-md center-block" Style="width: 100px;" @onclick="AddOpponentGoal">+ GOAL</button>
+                <button id="btnClear" class="btn btn-danger btn-md center-block" Style="width: 100px;" @onclick="RemoveOpponentGoal">- GOAL</button>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group row">
+        <label for="staticPlayerOfTheMatch" class="col-sm-2 col-form-label">Player of the Match</label>
+        <div class="col-sm-10">
+            <select class="form-control" @bind="@PlayerOfTheMatch">
+                @foreach (var country in PlayerList)
+                {
+                    <option value="@country.Name"> @country.Name </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <!-- code here -->
+        <div class="match">
+            <div class="match-header">
+                <div class="match-status"></div>
+                <div class="match-tournament"><img src="https://i.ibb.co/cL4bs8n/bbdfl.png" />Bolton Bury District Football League</div>
+                <div class="match-actions">
+                    <button class="btn-icon"><i class="material-icons-outlined"></i></button>
+                    <button class="btn-icon"><i class="material-icons-outlined"></i></button>
+                </div>
+            </div>
+            <div class="match-content">
+                <div class="column">
+                    <div class="team team--home">
+                        <div class="team-logo">
+                            <img src="https://i.ibb.co/q0yGDDp/woodbank.png"  />
+                        </div>
+                        <h2 class="team-name">Woodbank Weasels</h2>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="match-details">
+                        <div class="match-date">
+                            @NewMatch.KickOff.ToString("dd MMM") at <strong>@NewMatch.KickOff.ToString("HH:mm")</strong>
+                        </div>
+                        <div class="match-score">
+                            <span class="match-score-number match-score-number--leading">@NewMatch.OpponentScore</span>
+                            <span class="match-score-divider">:</span>
+                            <span class="match-score-number">@NewMatch.OurScore</span>
+                        </div>
+                        <div class="match-time-lapsed">
+                        </div>
+                        <div class="match-referee">
+                            <strong>@NewMatch.PlayerOfTheMatch</strong>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="team team--away">
+                        <div class="team-logo">
+                            <img src="https://i.ibb.co/HzYrQk3/horwichrmi.png" />
+                        </div>
+                        <h2 class="team-name">Horwich RMI Oranges</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+
+
+@code {
+
+    async Task AddOurGoal()
+    {
+        var result = await DialogService.OpenAsync("Who Scored?", ds => 
+        @<RadzenStack Gap="1.5rem">
+            <select class="form-control" @bind="@SelectedPlayer">
+                    @foreach (var country in PlayerList)
+                    {
+                        <option value="@country.Name"> @country.Name </option>
+                    }        
+            </select>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="width: 80px;" />
+                    <RadzenButton Text="Cancel" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" />
+                </RadzenStack>
+        </RadzenStack>
+    </RadzenStack>);
+    }
+
+}
